@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>title</key>
+    <string>MoreTimer</string>
+    <key>entry</key>
+    <dict>
+      <key>cell</key>
+      <string>PSLinkCell</string>
+      <key>icon</key>
+      <string>MT.png</string>
+      <key>label</key>
+      <string>MoreTimer</string>
+    </dict>
+    <key>items</key>
+    <array>
+      <dict>
+        <key>cell</key>
+        <string>PSGroupCell</string>
+        <key>label</key>
+        <string>Burst Timer</string>
+        <key>footerText</key>
+    	<string>Enable or disable burst capture in timer mode. (when available)</string>
+      </dict>
+       <dict>
+        	<key>cell</key>
+        	<string>PSSwitchCell</string>
+        	<key>PostNotification</key>
+        	<string>com.PS.MoreTimer.prefs</string>
+        	<key>default</key>
+        	<true/>
+        	<key>defaults</key>
+        	<string>com.PS.MoreTimer</string>
+        	<key>key</key>
+        	<string>shouldUseBurst</string>
+        	<key>label</key>
+        	<string>Enabled</string>
+      </dict>
+      <dict>
+        <key>cell</key>
+        <string>PSGroupCell</string>
+        <key>label</key>
+        <string>Torch Timer</string>
+        <key>footerText</key>
+    	<string>- Enable or disable torch blinking in timer mode.
+- Select torch blinking style.
+- Set amount of last seconds for double blinking. (Blinking style must be set to default)</string>
+    	<key>requiredCapabilities</key>
+		<array>
+			<dict>
+				<key>camera-flash</key>
+				<true/>
+			</dict>
+		</array>
+      </dict>
+       <dict>
+        	<key>cell</key>
+        	<string>PSSwitchCell</string>
+        	<key>PostNotification</key>
+        	<string>com.PS.MoreTimer.prefs</string>
+        	<key>default</key>
+        	<true/>
+        	<key>defaults</key>
+        	<string>com.PS.MoreTimer</string>
+        	<key>key</key>
+        	<string>shouldUseTorch</string>
+        	<key>label</key>
+        	<string>Enabled</string>
+        	<key>requiredCapabilities</key>
+			<array>
+			<dict>
+				<key>camera-flash</key>
+				<true/>
+			</dict>
+		</array>
+      </dict>
+      <dict>
+			<key>cell</key>
+			<string>PSLinkListCell</string>
+			<key>defaults</key>
+			<string>com.PS.MoreTimer</string>
+			<key>detail</key>
+			<string>PSListItemsController</string>
+			<key>key</key>
+			<string>blinkStyle</string>
+			<key>label</key>
+			<string>Blinking Style</string>
+			<key>PostNotification</key>
+        	<string>com.PS.MoreTimer.prefs</string>
+			<key>validTitles</key>
+			<array>
+				<string>Default</string>
+				<string>All blink</string>
+				<string>All double blink</string>
+				<string>Blink every 2 seconds</string>
+				<string>Double blink every 2 seconds</string>
+			</array>
+			<key>validValues</key>
+			<array>
+				<integer>0</integer>
+				<integer>1</integer>
+				<integer>2</integer>
+				<integer>3</integer>
+				<integer>4</integer>
+			</array>
+			<key>staticTextMessage</key>
+        	<string></string>
+			<key>requiredCapabilities</key>
+			<array>
+			<dict>
+				<key>camera-flash</key>
+				<true/>
+			</dict>
+			</array>
+		</dict>
+		 <dict>
+		<key>cell</key>
+		<string>PSEditTextCell</string>
+		<key>PostNotification</key>
+        <string>com.PS.MoreTimer.prefs</string>
+		<key>detail</key>
+		<string>PSDetailController</string>
+		<key>default</key>
+		<string>3</string>
+		<key>defaults</key>
+		<string>com.PS.MoreTimer</string>
+		<key>key</key>
+		<string>doubleBlinkDuration</string>
+		<key>label</key>
+		<string>Double blink duration</string>
+		<key>placeholder</key>
+		<string></string>
+		<key>isNumeric</key>
+		<true/>
+		<key>requiredCapabilities</key>
+		<array>
+			<dict>
+				<key>camera-flash</key>
+				<true/>
+			</dict>
+		</array>
+	   </dict>
+	<dict>
+        <key>cell</key>
+        <string>PSGroupCell</string>
+        <key>label</key>
+        <string>Timer Addition</string>
+        <key>footerText</key>
+    	<string>Specific 3 more countdown timer values. Leaving or set to zero to disable.
+
+*** IMPORTANT ***: If you want to disable or uninstall this tweak, make sure you turn this option off, and open camera app once before uninstalling.</string>
+      </dict>
+      <dict>
+        	<key>cell</key>
+        	<string>PSSwitchCell</string>
+        	<key>PostNotification</key>
+        	<string>com.PS.MoreTimer.prefs</string>
+        	<key>default</key>
+        	<false/>
+        	<key>defaults</key>
+        	<string>com.PS.MoreTimer</string>
+        	<key>key</key>
+        	<string>enabledAddition</string>
+        	<key>label</key>
+        	<string>Enabled</string>
+      </dict>
+      <dict>
+		<key>cell</key>
+		<string>PSEditTextCell</string>
+		<key>PostNotification</key>
+        <string>com.PS.MoreTimer.prefs</string>
+		<key>detail</key>
+		<string>PSDetailController</string>
+		<key>default</key>
+		<string>15</string>
+		<key>defaults</key>
+		<string>com.PS.MoreTimer</string>
+		<key>key</key>
+		<string>thirdDuration</string>
+		<key>label</key>
+		<string>#3</string>
+		<key>placeholder</key>
+		<string>15</string>
+		<key>isNumeric</key>
+		<true/>
+	   </dict>
+	   <dict>
+		<key>cell</key>
+		<string>PSEditTextCell</string>
+		<key>PostNotification</key>
+        <string>com.PS.MoreTimer.prefs</string>
+		<key>detail</key>
+		<string>PSDetailController</string>
+		<key>default</key>
+		<string></string>
+		<key>defaults</key>
+		<string>com.PS.MoreTimer</string>
+		<key>key</key>
+		<string>fourthDuration</string>
+		<key>label</key>
+		<string>#4</string>
+		<key>placeholder</key>
+		<string>input numeric</string>
+		<key>isNumeric</key>
+		<true/>
+	   </dict>
+	   <dict>
+		<key>cell</key>
+		<string>PSEditTextCell</string>
+		<key>PostNotification</key>
+        <string>com.PS.MoreTimer.prefs</string>
+		<key>detail</key>
+		<string>PSDetailController</string>
+		<key>default</key>
+		<string></string>
+		<key>defaults</key>
+		<string>com.PS.MoreTimer</string>
+		<key>key</key>
+		<string>fifthDuration</string>
+		<key>label</key>
+		<string>#5</string>
+		<key>placeholder</key>
+		<string>input numeric</string>
+		<key>isNumeric</key>
+		<true/>
+	   </dict>
+	   <dict>
+        <key>cell</key>
+        <string>PSGroupCell</string>
+        <key>label</key>
+        <string>Kill Camera App</string>
+        <key>footerText</key>
+    	<string>Enable this to kill camera app when tweak settings changed. (You don't have to kill camera app every time you make changes to settings)</string>
+      </dict>
+       <dict>
+        	<key>cell</key>
+        	<string>PSSwitchCell</string>
+        	<key>default</key>
+        	<false/>
+        	<key>defaults</key>
+        	<string>com.PS.MoreTimer</string>
+        	<key>key</key>
+        	<string>killCam</string>
+        	<key>label</key>
+        	<string>Enabled</string>
+      </dict>
+       <dict>
+        <key>cell</key>
+        <string>PSGroupCell</string>
+        <key>footerAlignment</key>
+        <integer>1</integer>
+        <key>footerText</key>
+        <string>© 2013 - 2014 Thatchapon Unprasert
+(@PoomSmart)</string>
+      </dict>
+    </array>
+  </dict>
+</plist>

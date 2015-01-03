@@ -1,0 +1,9 @@
+Package: org.thebigboss.moretimer8
+Name: MoreTimer
+Depends: mobilesubstrate, preferenceloader, firmware (>= 8.0)
+Version: 1.0
+Architecture: iphoneos-arm
+Description: Configurations for iOS 8 Camera timer feature.
+Author: PoomSmart
+Section: Tweaks
+Icon: file:///Library/PreferenceLoader/Preferences/MoreTimer/MT@2x.png
