@@ -4,13 +4,19 @@
 CFStringRef const PreferencesNotification = CFSTR("com.PS.MoreTimer.prefs");
 NSString *const PREF_PATH = @"/var/mobile/Library/Preferences/com.PS.MoreTimer.plist";
 
+@interface CAMButtonLabel : UILabel
+@end
+
 @interface CAMExpandableMenuButton : UIControl
 @property NSUInteger selectedIndex;
+- (NSArray *)_menuItems;
+- (void)setHighlighted:(BOOL)highlighted forIndex:(NSUInteger)index;
 @end
 
 @interface CAMTimerButton : CAMExpandableMenuButton
 @property NSInteger duration;
 - (NSString *)titleForMenuItemAtIndex:(NSUInteger)index;
+- (NSInteger)numberOfMenuItems;
 @end
 
 @interface CAMTorchPattern : NSObject
@@ -55,6 +61,24 @@ NSUInteger effectiveTimerCount;
 	return effectiveTimerCount + 1;
 }
 
+- (void)_commonCAMTimerButtonInitialization
+{
+	%orig;
+	for (NSUInteger index = 3; index < (NSUInteger)[self numberOfMenuItems]; index++) {
+		[self setHighlighted:YES forIndex:index];
+	}
+}
+
+- (void)reloadData
+{
+	%orig;
+	if (!IPAD && effectiveTimerCount == 3) {
+		CAMButtonLabel *zeroLabel = [[self _menuItems] lastObject];
+		zeroLabel.hidden = YES;
+		zeroLabel.userInteractionEnabled = NO;
+	}
+}
+
 %end
 
 %hook CAMCameraView
@@ -83,31 +107,15 @@ NSUInteger effectiveTimerCount;
 {
 	if (!shouldUseTorch)
 		return;
-	// CAMTimerButton index == 2 && remaining ticks <= 3  =  doubleBlink
-	// CAMTimerButton index != 2 || remaining ticks >  3  =  blink
-
-	/*NSInteger remainingTicks = MSHookIvar<NSInteger>(self, "__remainingDelayedCaptureTicks");
-	NSUInteger index = [self _timerButton].selectedIndex;
-	wantDoubleBlink = doubleBlinkDurationForLastSeconds || doubleBlinkFromStyle;
-	wantBlink = blinkStyle == 1;
-	%orig;
-	wantDoubleBlink = NO;
-	wantBlink = NO;*/
-	
 	CAMCaptureController *controller = MSHookIvar<CAMCaptureController *>(self, "_cameraController");
 	if (controller.cameraDevice != 0)
 		return;
-	//CAMTimerButton *timerButton = MSHookIvar<CAMTimerButton *>(self, "__timerButton");
 	CAMTorchPatternController *torch = MSHookIvar<CAMTorchPatternController *>(self, "__torchPatternController");
-	//NSInteger duration = timerButton.duration;
 	NSInteger totalDuration = [self _currentTimerDuration];
 	NSInteger remainingTicks = [self _remainingDelayedCaptureTicks];
 	if (blinkStyle == 0) {
 		BOOL doubleBlinkDurationForLastSeconds = doubleBlinkDuration > 0 && doubleBlinkDuration >= remainingTicks;
-		if (doubleBlinkDurationForLastSeconds)
-			[torch doubleBlink];
-		else
-			[torch blink];
+		doubleBlinkDurationForLastSeconds ? [torch doubleBlink] : [torch blink];
 	}
 	else if (blinkStyle == 1)
 		[torch blink];
@@ -115,9 +123,8 @@ NSUInteger effectiveTimerCount;
 		[torch doubleBlink];
 	else if (blinkStyle == 3 || blinkStyle == 4) {
 		BOOL everyTwoSecs = ((totalDuration - remainingTicks) % 2) == 0;
-		if (everyTwoSecs) {
+		if (everyTwoSecs)
 			blinkStyle == 3 ? [torch blink] : [torch doubleBlink];
-		}
 	}
 }
 
