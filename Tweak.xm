@@ -4,43 +4,6 @@
 CFStringRef const PreferencesNotification = CFSTR("com.PS.MoreTimer.prefs");
 NSString *const PREF_PATH = @"/var/mobile/Library/Preferences/com.PS.MoreTimer.plist";
 
-@interface CAMButtonLabel : UILabel
-@end
-
-@interface CAMExpandableMenuButton : UIControl
-@property NSUInteger selectedIndex;
-- (NSArray *)_menuItems;
-- (void)setHighlighted:(BOOL)highlighted forIndex:(NSUInteger)index;
-@end
-
-@interface CAMTimerButton : CAMExpandableMenuButton
-@property NSInteger duration;
-- (NSString *)titleForMenuItemAtIndex:(NSUInteger)index;
-- (NSInteger)numberOfMenuItems;
-@end
-
-@interface CAMTorchPattern : NSObject
-- (id)initWithType:(NSInteger)type;
-@end
-
-@interface CAMTorchPatternController : NSObject
-- (void)blink; // ?
-- (void)doubleBlink; // type 3
-@end
-
-@interface CAMCaptureController : NSObject
-@property int cameraDevice;
-@end
-
-@interface CAMCameraView
-- (CAMTorchPatternController *)_torchPatternController;
-- (CAMTimerButton *)_timerButton;
-- (NSInteger)_currentTimerDuration;
-- (NSInteger)_remainingDelayedCaptureTicks;
-- (BOOL)_shouldUseAvalancheForDelayedCapture;
-- (void)_startDelayedCapture;
-@end
-
 NSInteger thirdDuration;
 NSInteger fourthDuration;
 NSInteger fifthDuration;
