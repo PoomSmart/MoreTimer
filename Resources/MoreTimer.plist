@@ -225,33 +225,13 @@
 		<key>isNumeric</key>
 		<true/>
 	   </dict>
-	   <dict>
-        <key>cell</key>
-        <string>PSGroupCell</string>
-        <key>label</key>
-        <string>Kill Camera App</string>
-        <key>footerText</key>
-    	<string>Enable this to kill camera app when tweak settings changed. (You don't have to kill camera app every time you make changes to settings)</string>
-      </dict>
-       <dict>
-        	<key>cell</key>
-        	<string>PSSwitchCell</string>
-        	<key>default</key>
-        	<false/>
-        	<key>defaults</key>
-        	<string>com.PS.MoreTimer</string>
-        	<key>key</key>
-        	<string>killCam</string>
-        	<key>label</key>
-        	<string>Enabled</string>
-      </dict>
        <dict>
         <key>cell</key>
         <string>PSGroupCell</string>
         <key>footerAlignment</key>
         <integer>1</integer>
         <key>footerText</key>
-        <string>© 2013 - 2014 Thatchapon Unprasert
+        <string>© 2013 - 2015 Thatchapon Unprasert
 (@PoomSmart)</string>
       </dict>
     </array>

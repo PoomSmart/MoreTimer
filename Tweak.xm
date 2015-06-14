@@ -4,16 +4,23 @@
 CFStringRef const PreferencesNotification = CFSTR("com.PS.MoreTimer.prefs");
 NSString *const PREF_PATH = @"/var/mobile/Library/Preferences/com.PS.MoreTimer.plist";
 
-NSInteger thirdDuration;
-NSInteger fourthDuration;
-NSInteger fifthDuration;
-NSInteger doubleBlinkDuration;
-NSInteger blinkStyle; // 0 - default, 1 - blink all, 2 - double blink all, 3 - blink every 2 seconds, 4 - double blink every 2 seconds
-BOOL shouldUseTorch;
-BOOL shouldUseBurst;
-BOOL enabledAddition;
+static NSInteger thirdDuration;
+static NSInteger fourthDuration;
+static NSInteger fifthDuration;
+static NSInteger doubleBlinkDuration;
+static NSInteger blinkStyle;
+/* blinkStyle
+0 - default
+1 - blink all
+2 - double blink all
+3 - blink every 2 seconds
+4 - double blink every 2 seconds
+*/
+static BOOL shouldUseTorch;
+static BOOL shouldUseBurst;
+static BOOL enabledAddition;
 
-NSUInteger effectiveTimerCount;
+static NSUInteger effectiveTimerCount;
 
 %hook CAMTimerButton
 
@@ -63,7 +70,7 @@ NSUInteger effectiveTimerCount;
 
 - (BOOL)_shouldUseAvalancheForDelayedCapture
 {
-	return !shouldUseBurst ? NO : %orig;
+	return shouldUseBurst;
 }
 
 - (void)_indicateDelayedCaptureProgressUsingTorch
@@ -77,7 +84,7 @@ NSUInteger effectiveTimerCount;
 	NSInteger totalDuration = [self _currentTimerDuration];
 	NSInteger remainingTicks = [self _remainingDelayedCaptureTicks];
 	if (blinkStyle == 0) {
-		BOOL doubleBlinkDurationForLastSeconds = doubleBlinkDuration > 0 && doubleBlinkDuration >= remainingTicks;
+		BOOL doubleBlinkDurationForLastSeconds = (doubleBlinkDuration > 0 && (doubleBlinkDuration >= remainingTicks));
 		doubleBlinkDurationForLastSeconds ? [torch doubleBlink] : [torch blink];
 	}
 	else if (blinkStyle == 1)
@@ -85,7 +92,7 @@ NSUInteger effectiveTimerCount;
 	else if (blinkStyle == 2)
 		[torch doubleBlink];
 	else if (blinkStyle == 3 || blinkStyle == 4) {
-		BOOL everyTwoSecs = ((totalDuration - remainingTicks) % 2) == 0;
+		BOOL everyTwoSecs = (((totalDuration - remainingTicks) % 2) == 0);
 		if (everyTwoSecs)
 			blinkStyle == 3 ? [torch blink] : [torch doubleBlink];
 	}
@@ -98,14 +105,22 @@ static void reloadSettings()
 	NSDictionary *prefs = nil;
 	CFPreferencesAppSynchronize(CFSTR("com.PS.MoreTimer"));
 	prefs = [NSDictionary dictionaryWithContentsOfFile:PREF_PATH];
-	thirdDuration = prefs[@"thirdDuration"] ? [prefs[@"thirdDuration"] intValue] : 15;
-	fourthDuration = [prefs[@"fourthDuration"] intValue];
-	fifthDuration = [prefs[@"fifthDuration"] intValue];
-	blinkStyle = [prefs[@"blinkStyle"] intValue];
-	doubleBlinkDuration = prefs[@"doubleBlinkDuration"] ? [prefs[@"doubleBlinkDuration"] intValue] : 3;
-	shouldUseBurst = prefs[@"shouldUseBurst"] ? [prefs[@"shouldUseBurst"] boolValue] : YES;
-	shouldUseTorch = prefs[@"shouldUseTorch"] ? [prefs[@"shouldUseTorch"] boolValue] : YES;
-	enabledAddition = [prefs[@"enabledAddition"] boolValue];
+	id val =  prefs[@"thirdDuration"];
+	thirdDuration = val ? [val intValue] : 15;
+	val = prefs[@"fourthDuration"];
+	fourthDuration = [val intValue];
+	val = prefs[@"fifthDuration"];
+	fifthDuration = [val intValue];
+	val = prefs[@"blinkStyle"];
+	blinkStyle = [val intValue];
+	val = prefs[@"doubleBlinkDuration"];
+	doubleBlinkDuration = val ? [val intValue] : 3;
+	val = prefs[@"shouldUseBurst"];
+	shouldUseBurst = val ? [val boolValue] : YES;
+	val = prefs[@"shouldUseTorch"];
+	shouldUseTorch = val ? [val boolValue] : YES;
+	val = prefs[@"enabledAddition"];
+	enabledAddition = [val boolValue];
 	effectiveTimerCount = 2;
 	if (enabledAddition) {
 		if (thirdDuration != 0) {
@@ -121,9 +136,6 @@ static void reloadSettings()
 
 static void post(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo)
 {
-	BOOL killCamera = [[NSDictionary dictionaryWithContentsOfFile:PREF_PATH][@"killCam"] boolValue];
-	if (killCamera)
-		system("killall Camera");
 	reloadSettings();
 }
 
