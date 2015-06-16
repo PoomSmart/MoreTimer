@@ -9,7 +9,8 @@ static NSInteger fourthDuration;
 static NSInteger fifthDuration;
 static NSInteger doubleBlinkDuration;
 static NSInteger blinkStyle;
-/* blinkStyle
+/*** blinkStyle ***/
+/*
 0 - default
 1 - blink all
 2 - double blink all
@@ -22,38 +23,14 @@ static BOOL enabledAddition;
 
 static NSUInteger effectiveTimerCount;
 
-%hook CAMTimerButton
-
-- (NSInteger)numberOfMenuItems
+static NSInteger numberOfMenuItems()
 {
 	if (!IPAD && effectiveTimerCount == 3)
 		return 5;
 	return effectiveTimerCount + 1;
 }
 
-- (void)_commonCAMTimerButtonInitialization
-{
-	%orig;
-	for (NSUInteger index = 3; index < (NSUInteger)[self numberOfMenuItems]; index++) {
-		[self setHighlighted:YES forIndex:index];
-	}
-}
-
-- (void)reloadData
-{
-	%orig;
-	if (!IPAD && effectiveTimerCount == 3) {
-		CAMButtonLabel *zeroLabel = [[self _menuItems] lastObject];
-		zeroLabel.hidden = YES;
-		zeroLabel.userInteractionEnabled = NO;
-	}
-}
-
-%end
-
-%hook CAMCameraView
-
-- (NSInteger)_numberOfTicksForTimerDuration:(NSInteger)duration
+static NSInteger _numberOfTicksForTimerDuration(NSInteger duration, NSInteger orig)
 {
 	if (duration > 2) {
 		switch (duration) {
@@ -65,15 +42,10 @@ static NSUInteger effectiveTimerCount;
 				return fifthDuration;
 		}
 	}
-	return %orig;
+	return orig;
 }
 
-- (BOOL)_shouldUseAvalancheForDelayedCapture
-{
-	return shouldUseBurst;
-}
-
-- (void)_indicateDelayedCaptureProgressUsingTorch
+static void _indicateDelayedCaptureProgressUsingTorch(CAMCameraView *self)
 {
 	if (!shouldUseTorch)
 		return;
@@ -97,6 +69,108 @@ static NSUInteger effectiveTimerCount;
 			blinkStyle == 3 ? [torch blink] : [torch doubleBlink];
 	}
 }
+
+static void reloadData(CAMTimerButton *self)
+{
+	if (!IPAD && effectiveTimerCount == 3) {
+		UILabel *zeroLabel = [[self _menuItems] lastObject];
+		zeroLabel.hidden = YES;
+		zeroLabel.userInteractionEnabled = NO;
+	}
+}
+
+static void _commonCAMTimerButtonInitialization(CAMTimerButton *self)
+{
+	for (NSUInteger index = 3; index < (NSUInteger)[self numberOfMenuItems]; index++) {
+		[self setHighlighted:YES forIndex:index];
+	}
+}
+
+%group iOS8
+
+%hook CAMTimerButton
+
+- (NSInteger)numberOfMenuItems
+{
+	return numberOfMenuItems();
+}
+
+- (void)_commonCAMTimerButtonInitialization
+{
+	%orig;
+	_commonCAMTimerButtonInitialization(self);
+}
+
+- (void)reloadData
+{
+	%orig;
+	reloadData(self);
+}
+
+%end
+
+%hook CAMCameraView
+
+- (NSInteger)_numberOfTicksForTimerDuration:(NSInteger)duration
+{
+	return _numberOfTicksForTimerDuration(duration, %orig);
+}
+
+- (BOOL)_shouldUseAvalancheForDelayedCapture
+{
+	return shouldUseBurst;
+}
+
+- (void)_indicateDelayedCaptureProgressUsingTorch
+{
+	_indicateDelayedCaptureProgressUsingTorch(self);
+}
+
+%end
+
+%end
+
+%group iOS9
+
+%hook CMKTimerButton
+
+- (NSInteger)numberOfMenuItems
+{
+	return numberOfMenuItems();
+}
+
+- (void)_commonCAMTimerButtonInitialization
+{
+	%orig;
+	_commonCAMTimerButtonInitialization(self);
+}
+
+- (void)reloadData
+{
+	%orig;
+	reloadData(self);
+}
+
+%end
+
+%hook CMKCameraView
+
+- (NSInteger)_numberOfTicksForTimerDuration:(NSInteger)duration
+{
+	return _numberOfTicksForTimerDuration(duration, %orig);
+}
+
+- (BOOL)_shouldUseAvalancheForDelayedCapture
+{
+	return shouldUseBurst;
+}
+
+- (void)_indicateDelayedCaptureProgressUsingTorch
+{
+	_indicateDelayedCaptureProgressUsingTorch(self);
+}
+
+%end
 
 %end
 
@@ -141,9 +215,11 @@ static void post(CFNotificationCenterRef center, void *observer, CFStringRef nam
 
 %ctor
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, &post, PreferencesNotification, NULL, CFNotificationSuspensionBehaviorCoalesce);
 	reloadSettings();
-	%init;
-  	[pool drain];
+	if (isiOS9Up) {
+		%init(iOS9);
+	} else {
+		%init(iOS8);
+	}
 }
