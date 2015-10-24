@@ -1,8 +1,8 @@
 #import <substrate.h>
 #import "../PS.h"
 
-CFStringRef const PreferencesNotification = CFSTR("com.PS.MoreTimer.prefs");
-NSString *const PREF_PATH = @"/var/mobile/Library/Preferences/com.PS.MoreTimer.plist";
+CFStringRef PreferencesNotification = CFSTR("com.PS.MoreTimer.prefs");
+NSString *PREF_PATH = @"/var/mobile/Library/Preferences/com.PS.MoreTimer.plist";
 
 static NSInteger thirdDuration;
 static NSInteger fourthDuration;
@@ -70,6 +70,30 @@ static void _indicateDelayedCaptureProgressUsingTorch(CAMCameraView *self)
 	}
 }
 
+static void _indicateCaptureTimerProgressUsingTorch(CAMViewfinderViewController *self)
+{
+	if (!shouldUseTorch)
+		return;
+	if (self._currentDevice != 0 || ![[%c(CAMCaptureCapabilities) capabilities] isTorchPatternSupportedForDevice:self._currentDevice])
+		return;
+	CAMTorchPatternController *torch = MSHookIvar<CAMTorchPatternController *>(self, "__torchPatternController");
+	NSInteger totalDuration = [self _timerDuration];
+	NSInteger remainingTicks = [self _remainingCaptureTimerTicks];
+	if (blinkStyle == 0) {
+		BOOL doubleBlinkDurationForLastSeconds = (doubleBlinkDuration > 0 && (doubleBlinkDuration >= remainingTicks));
+		doubleBlinkDurationForLastSeconds ? [torch doubleBlink] : [torch blink];
+	}
+	else if (blinkStyle == 1)
+		[torch blink];
+	else if (blinkStyle == 2)
+		[torch doubleBlink];
+	else if (blinkStyle == 3 || blinkStyle == 4) {
+		BOOL everyTwoSecs = (((totalDuration - remainingTicks) % 2) == 0);
+		if (everyTwoSecs)
+			blinkStyle == 3 ? [torch blink] : [torch doubleBlink];
+	}
+}
+
 static void reloadData(CAMTimerButton *self)
 {
 	if (!IPAD && effectiveTimerCount == 3) {
@@ -85,8 +109,6 @@ static void _commonCAMTimerButtonInitialization(CAMTimerButton *self)
 		[self setHighlighted:YES forIndex:index];
 	}
 }
-
-%group iOS8
 
 %hook CAMTimerButton
 
@@ -108,6 +130,8 @@ static void _commonCAMTimerButtonInitialization(CAMTimerButton *self)
 }
 
 %end
+
+%group iOS8
 
 %hook CAMCameraView
 
@@ -132,42 +156,21 @@ static void _commonCAMTimerButtonInitialization(CAMTimerButton *self)
 
 %group iOS9
 
-%hook CMKTimerButton
-
-- (NSInteger)numberOfMenuItems
-{
-	return numberOfMenuItems();
-}
-
-- (void)_commonCAMTimerButtonInitialization
-{
-	%orig;
-	_commonCAMTimerButtonInitialization(self);
-}
-
-- (void)reloadData
-{
-	%orig;
-	reloadData(self);
-}
-
-%end
-
-%hook CMKCameraView
+%hook CAMViewfinderViewController
 
 - (NSInteger)_numberOfTicksForTimerDuration:(NSInteger)duration
 {
 	return _numberOfTicksForTimerDuration(duration, %orig);
 }
 
-- (BOOL)_shouldUseAvalancheForDelayedCapture
+- (BOOL)_shouldUseBurstForCaptureTimer
 {
 	return shouldUseBurst;
 }
 
 - (void)_indicateDelayedCaptureProgressUsingTorch
 {
-	_indicateDelayedCaptureProgressUsingTorch(self);
+	_indicateCaptureTimerProgressUsingTorch(self);
 }
 
 %end
@@ -217,9 +220,11 @@ static void post(CFNotificationCenterRef center, void *observer, CFStringRef nam
 {
 	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, &post, PreferencesNotification, NULL, CFNotificationSuspensionBehaviorCoalesce);
 	reloadSettings();
+	%init;
 	if (isiOS9Up) {
 		%init(iOS9);
-	} else {
+	}
+	else {
 		%init(iOS8);
 	}
 }
