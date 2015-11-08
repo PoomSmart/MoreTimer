@@ -168,7 +168,7 @@ static void _commonCAMTimerButtonInitialization(CAMTimerButton *self)
 	return shouldUseBurst;
 }
 
-- (void)_indicateDelayedCaptureProgressUsingTorch
+- (void)_indicateCaptureTimerProgressUsingTorch
 {
 	_indicateCaptureTimerProgressUsingTorch(self);
 }
@@ -222,6 +222,7 @@ static void post(CFNotificationCenterRef center, void *observer, CFStringRef nam
 	reloadSettings();
 	%init;
 	if (isiOS9Up) {
+		dlopen("/System/Library/PrivateFrameworks/CameraUI.framework/CameraUI", RTLD_LAZY);
 		%init(iOS9);
 	}
 	else {
