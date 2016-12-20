@@ -2,7 +2,7 @@ GO_EASY_ON_ME = 1
 TARGET = iphone:latest:8.0
 ARCHS = armv7 arm64
 
-include theos/makefiles/common.mk
+include $(THEOS)/makefiles/common.mk
 TWEAK_NAME = MoreTimer
 MoreTimer_FILES = Tweak.xm
 MoreTimer_FRAMEWORKS = UIKit

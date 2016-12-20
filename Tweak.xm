@@ -4,11 +4,12 @@
 CFStringRef PreferencesNotification = CFSTR("com.PS.MoreTimer.prefs");
 NSString *PREF_PATH = @"/var/mobile/Library/Preferences/com.PS.MoreTimer.plist";
 
-static NSInteger thirdDuration;
-static NSInteger fourthDuration;
-static NSInteger fifthDuration;
-static NSInteger doubleBlinkDuration;
-static NSInteger blinkStyle;
+NSInteger thirdDuration;
+NSInteger fourthDuration;
+NSInteger fifthDuration;
+NSInteger doubleBlinkDuration;
+NSInteger blinkStyle;
+
 /*** blinkStyle ***/
 /*
 0 - default
@@ -17,20 +18,21 @@ static NSInteger blinkStyle;
 3 - blink every 2 seconds
 4 - double blink every 2 seconds
 */
-static BOOL shouldUseTorch;
-static BOOL shouldUseBurst;
-static BOOL enabledAddition;
 
-static NSUInteger effectiveTimerCount;
+BOOL shouldUseTorch;
+BOOL shouldUseBurst;
+BOOL enabledAddition;
 
-static NSInteger numberOfMenuItems()
+NSUInteger effectiveTimerCount;
+
+NSInteger numberOfMenuItems()
 {
 	if (!IPAD && effectiveTimerCount == 3)
 		return 5;
 	return effectiveTimerCount + 1;
 }
 
-static NSInteger _numberOfTicksForTimerDuration(NSInteger duration, NSInteger orig)
+NSInteger _numberOfTicksForTimerDuration(NSInteger duration, NSInteger orig)
 {
 	if (duration > 2) {
 		switch (duration) {
@@ -105,9 +107,8 @@ static void reloadData(CAMTimerButton *self)
 
 static void _commonCAMTimerButtonInitialization(CAMTimerButton *self)
 {
-	for (NSUInteger index = 3; index < (NSUInteger)[self numberOfMenuItems]; index++) {
+	for (NSUInteger index = 3; index < (NSUInteger)[self numberOfMenuItems]; index++)
 		[self setHighlighted:YES forIndex:index];
-	}
 }
 
 %hook CAMTimerButton
@@ -222,10 +223,10 @@ static void post(CFNotificationCenterRef center, void *observer, CFStringRef nam
 	reloadSettings();
 	%init;
 	if (isiOS9Up) {
-		dlopen("/System/Library/PrivateFrameworks/CameraUI.framework/CameraUI", RTLD_LAZY);
+		openCamera9();
 		%init(iOS9);
-	}
-	else {
+	} else {
+		openCamera8();
 		%init(iOS8);
 	}
 }
