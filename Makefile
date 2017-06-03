@@ -1,6 +1,6 @@
 GO_EASY_ON_ME = 1
-TARGET = iphone:latest:8.0
-ARCHS = armv7 arm64
+TARGET = iphone:latest
+PACKAGE_VERSION = 1.1
 
 include $(THEOS)/makefiles/common.mk
 TWEAK_NAME = MoreTimer
